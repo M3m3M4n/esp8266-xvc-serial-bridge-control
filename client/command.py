@@ -128,17 +128,21 @@ def reconfig_wifi(menu, server):
     return
 
 def toggle_logger(menu, server):
-    print('Sending request...')
-    try:
-        ret = server.send_command(9)
-    except Exception as err:
-        handle_exception(menu, server, err)
-        return
-    ret2 = server.send_command(8,  int(not ret[2]))
-    if ret2[2] is not ret[2]:
-        menu.epilogue_text = 'Serial logging has been ' + ('enabled.' if ret2[2] == 1 else 'disabled.')
-    else:
-        menu.epilogue_text = 'Exception: State error, before ' + str(ret[2]) + ' after ' + str(ret2[2]) + '.'
+    screen = Screen()
+    screen.println('This will interfere with serial interface as it will inject log in the serial line.')
+    screen.println('Also you will need serial server up.')
+    if PromptUtils(screen).prompt_for_yes_or_no('Continue?'):
+        screen.println('Sending request...')
+        try:
+            ret = server.send_command(9)
+        except Exception as err:
+            handle_exception(menu, server, err)
+            return
+        ret2 = server.send_command(8,  int(not ret[2]))
+        if ret2[2] is not ret[2]:
+            menu.epilogue_text = 'Serial logging has been ' + ('enabled.' if ret2[2] == 1 else 'disabled.')
+        else:
+            menu.epilogue_text = 'Exception: State error, before ' + str(ret[2]) + ' after ' + str(ret2[2]) + '.'
 
 def get_logger(menu, server):
     print('Sending request...')
