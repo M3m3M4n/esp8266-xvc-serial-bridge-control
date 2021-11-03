@@ -28,5 +28,9 @@
 - D1 connect to R2584-U12-IO0 through a 1k resistor, serve as bootmode selector from ESP8266
 - D4 has a 20k pullup, connected to a push switch (bootmode selector button) to GND
 
+## Default ports
+- Command port: 42069
+- Serial passthrough: 2222
+- XVC: 2542
 
 
