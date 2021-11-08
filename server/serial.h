@@ -49,11 +49,13 @@ public:
 
     void begin()
     {
-        SerialPort::begin();
-        Serial.begin(SERIAL_BAUD);
-        Serial.setRxBufferSize(SERIAL_INTERNAL_BUFFER_SIZE);
-        server.begin();
-        running = 1;
+        if (!running) {
+            SerialPort::begin();
+            Serial.begin(SERIAL_BAUD);
+            Serial.setRxBufferSize(SERIAL_INTERNAL_BUFFER_SIZE);
+            server.begin();
+            running = 1;
+        }
     }
 
     void stop()

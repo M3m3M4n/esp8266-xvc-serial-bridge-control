@@ -106,9 +106,11 @@ public:
 
     void begin()
     {
-        jtag_port::begin();
-        server.begin();
-        running = 1;
+        if (!running) {
+            jtag_port::begin();
+            server.begin();
+            running = 1;
+        }
     }
 
     void stop()
