@@ -63,9 +63,7 @@ class CommandWrapper:
     * 05 set serial running state disable / enable (cmd still available) // not sending / reading from serial
     * 06 get serial running state
     * 07 reconfig wifi
-    * 08 set logger state
-    * 09 get logger state
-    * 10 reset server
+    * 08 reset server
     */
     '''
     # params and return are byte arrays
@@ -88,10 +86,6 @@ class CommandWrapper:
         elif cmd_code_case == b'\x07':
             cmd = self.HEADER + cmd_code_case
         elif cmd_code_case == b'\x08':
-            cmd = self.HEADER + cmd_code_case + extra_data
-        elif cmd_code_case == b'\x09':
-            cmd = self.HEADER + cmd_code_case
-        elif cmd_code_case == b'\x0a':
             cmd = self.HEADER + cmd_code_case
         return cmd
 
@@ -116,7 +110,7 @@ class CommandWrapper:
         if not self.is_connected():
             raise Exception('Not connected')
         self.conn.send(self.__prepare_cmd(cmd_code_case.to_bytes(1, byteorder='little'), extra_data.to_bytes(1, byteorder='little')))
-        if cmd_code_case == 7 or cmd_code_case == 10:
+        if cmd_code_case == 7 or cmd_code_case == 8:
             return ''
         return self.__recv_respond()
 
@@ -139,10 +133,6 @@ class CommandWrapper:
         elif respond[0] == 7:
             print('CMD: reconfig wifi')
         elif respond[0] == 8:
-            print('CMD: set log status')
-        elif respond[0] == 9:
-            print('CMD: get log status')
-        elif respond[0] == 10:
             print('CMD: reset server')
         elif respond[0] == 100:
             print('CMD: test')

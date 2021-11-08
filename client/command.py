@@ -117,7 +117,8 @@ def get_serial_run(menu, server):
 
 def reconfig_wifi(menu, server):
     screen = Screen()
-    if PromptUtils(screen).prompt_for_yes_or_no('This will also reset the command server, continue?'):
+    print('This will also reset the command server')
+    if PromptUtils(screen).prompt_for_yes_or_no('Continue?'):
         screen.println('Sending request...')
         try:
             server.send_command(7)
@@ -127,45 +128,13 @@ def reconfig_wifi(menu, server):
         menu.epilogue_text = 'Server reset, connect to AP -> 192.168.4.1.'
     return
 
-def toggle_logger(menu, server):
+def reset_server(menu, server):
     screen = Screen()
-    screen.println('This will interfere with serial interface as it will inject log in the serial line.')
-    screen.println('Also you will need serial server up.')
+    print('This will reset the command server')
     if PromptUtils(screen).prompt_for_yes_or_no('Continue?'):
         screen.println('Sending request...')
         try:
-            ret = server.send_command(9)
-        except Exception as err:
-            handle_exception(menu, server, err)
-            return
-        ret2 = server.send_command(8,  int(not ret[2]))
-        if ret2[2] is not ret[2]:
-            menu.epilogue_text = 'Serial logging has been ' + ('enabled.' if ret2[2] == 1 else 'disabled.')
-        else:
-            menu.epilogue_text = 'Exception: State error, before ' + str(ret[2]) + ' after ' + str(ret2[2]) + '.'
-
-def get_logger(menu, server):
-    print('Sending request...')
-    try:
-        ret = server.send_command(9)
-    except Exception as err:
-        handle_exception(menu, server, err)
-        return
-    val = int(ret[2])
-    if val == 0:
-        menu.epilogue_text = 'Serial logging is disabled.'
-    elif val == 1:
-        menu.epilogue_text = 'Serial server is enabled.'
-    else:
-        menu.epilogue_text = 'Failure: Unknown value.'
-    return
-
-def reset_server(menu, server):
-    screen = Screen()
-    if PromptUtils(screen).prompt_for_yes_or_no('This will reset the command server, continue?'):
-        screen.println('Sending request...')
-        try:
-            server.send_command(10)
+            server.send_command(8)
         except Exception as err:
             handle_exception(menu, server, err)
             return
@@ -231,9 +200,7 @@ def functions():
     print('5. Set serial running state.')
     print('6. Get serial running state.')
     print('7. Reconfig wifi.')
-    print('8. Set logger state.')
-    print('9. Get logger state.')
-    print('10. Reset server.')
+    print('8. Reset server.')
 
 def loop(server):
     menu_format = MenuFormatBuilder().set_border_style_type(MenuBorderStyleType.HEAVY_BORDER) \
@@ -266,14 +233,8 @@ def loop(server):
     get_serial_run_menu_func = FunctionItem("Get serial server state.", get_serial_run, [main_menu, server])
     main_menu.append_item(get_serial_run_menu_func)
 
-    reconfig_wifi_menu_func = FunctionItem("Re-config wifi (Will reset command server).", reconfig_wifi, [main_menu, server])
+    reconfig_wifi_menu_func = FunctionItem("Re-config wifi.", reconfig_wifi, [main_menu, server])
     main_menu.append_item(reconfig_wifi_menu_func)
-
-    toggle_logger_menu_func = FunctionItem("Toggle serial logger (Need serial server).", toggle_logger, [main_menu, server])
-    main_menu.append_item(toggle_logger_menu_func)
-
-    get_logger_menu_func = FunctionItem("Get logger state.", get_logger, [main_menu, server])
-    main_menu.append_item(get_logger_menu_func)
 
     reset_server_menu_func = FunctionItem("Reset command server.", reset_server, [main_menu, server])
     main_menu.append_item(reset_server_menu_func)
