@@ -32,4 +32,7 @@
 - Serial passthrough: 2222
 - XVC: 2542
 
+## Notes
+- Settings in arduino: 160Mhz, Vtable in heap || IRAM, V2 higher bandwidth
+
 
