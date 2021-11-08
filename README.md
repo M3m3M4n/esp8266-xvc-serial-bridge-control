@@ -3,9 +3,8 @@
 ## Features
 - Remotely hardware bootmode selection and reset
 - Remote XVC and serial bridge:
-    - ESP8266 XVC inplementation from:
-        - https://github.com/gtortone/esp-xvcd
-        - https://github.com/kholia/xvc-esp8266
+    - ESP8266 XVC implementation from:
+        - https://github.com/pftbest/xvc-esp8266.git
 
 ![Features](client/imgs/features.png)
 
@@ -15,10 +14,10 @@
 ![Pinout](imgs/ESP8266-NodeMCU-kit-12-E-pinout-gpio-pin.webp)
 
 ### JTAG
-- tms = D2;
-- tck = D5;
-- tdo = D6;
-- tdi = D7;
+- TMS = D2;
+- TCK = D5;
+- TDO = D6;
+- TDI = D7;
 
 ### Serial
 - Board's serial connected to ESP8266 serial port 0
