@@ -299,7 +299,7 @@ private:
                     case 100:
                         command_return_value = test();
                         ret_val = 0;
-                        goto RESET_STATE;
+                        goto RESET_STATE_0;
                     case 0:
                         // set boot mode need data
                         // also go here when need data
@@ -309,31 +309,31 @@ SET_STATE_4:
                     case 1:
                         command_return_value = get_bootmode();
                         ret_val = 0;
-                        goto RESET_STATE;
+                        goto RESET_STATE_0;
                     case 2:
                         command_return_value = reset_board();
                         ret_val = 0;
-                        goto RESET_STATE;
+                        goto RESET_STATE_0;
                     case 3:
-                        goto SET_STATE_4;
+                        goto RESET_STATE_0;
                     case 4:
                         command_return_value = get_xvc_run_state();
                         ret_val = 0;
-                        goto RESET_STATE;
+                        goto RESET_STATE_0;
                     case 5:
                         goto SET_STATE_4;
                     case 6:
                         command_return_value = get_serial_run_state();
                         ret_val = 0;
-                        goto RESET_STATE;
+                        goto RESET_STATE_0;
                     case 7:
                         command_return_value = reconfig_wifi();
                         ret_val = 0;
-                        goto RESET_STATE;
+                        goto RESET_STATE_0;
                     case 8:
                         command_return_value = reset_self();
                         ret_val = 0;
-                        goto RESET_STATE;
+                        goto RESET_STATE_0;
                     default:
                         goto STATE_UNK_CMD;
                 }
@@ -343,23 +343,31 @@ SET_STATE_4:
                     case 0:
                         command_return_value = set_bootmode(data);
                         ret_val = 0;
-                        goto RESET_STATE;
+                        goto RESET_STATE_0;
                     case 3:
                         command_return_value = set_xvc_run_state(data);
                         ret_val = 0;
-                        goto RESET_STATE;
+                        goto RESET_STATE_0;
                     case 5:
                         command_return_value = set_serial_run_state(data);
                         ret_val = 0;
-                        goto RESET_STATE;
+                        goto RESET_STATE_0;
                     default:
 STATE_UNK_CMD:
                         goto RESET_STATE;
                 }
                 break;
             default:
+                /* For normal command, reset to 0 after execution
+                 * If received unkown command lead to unkown state, check if byte is 0x4
+                 * This is to prevent failure to receive one command to chain to another and state keep reset to 0
+                 */
 RESET_STATE:
-                command_state = 0;
+                if(data == '\x04')
+                    command_state = 1;
+                else
+RESET_STATE_0:
+                    command_state = 0;
         }
         return ret_val;
     }
