@@ -34,5 +34,6 @@
 
 ## Notes
 - Settings in arduino: 160Mhz, Vtable in heap || IRAM, V2 higher bandwidth
+- Working unreliably in busy network, need to investigate, use hotspot or isolated network for now
 
 
