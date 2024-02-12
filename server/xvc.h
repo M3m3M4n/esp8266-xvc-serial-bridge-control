@@ -1,6 +1,7 @@
 #ifndef XVC_H
 #define XVC_H
 
+#include <Arduino.h>
 #include <ESP8266WiFi.h>
 
 #define XVC_PORT 2542
@@ -31,10 +32,10 @@ public:
 
     static void stop()
     {
-        pinMode(tck_pin, INPUT);
-        pinMode(tdo_pin, INPUT);
-        pinMode(tdi_pin, INPUT);
-        pinMode(tms_pin, INPUT);
+        pinMode(tck_pin, INPUT_PULLUP);
+        pinMode(tdo_pin, INPUT_PULLUP);
+        pinMode(tdi_pin, INPUT_PULLUP);
+        pinMode(tms_pin, INPUT_PULLUP);
     }
 
     static bool step(bool tms, bool tdi)

@@ -1,6 +1,7 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
+#include <Arduino.h>
 #include <WiFiManager.h>
 #include <ESP8266WiFi.h>
 #include "xvc.h"
@@ -13,6 +14,12 @@
 #define COMMAND_BOOTMODE_CONTROL_PIN  5
 #define COMMAND_BOOTMODE_SELECTOR_PIN 2
 
+const char string_0[] PROGMEM = "[LOG]"; 
+const char string_1[] PROGMEM = "STARTING COMMAND SERVER...";
+
+// Initialize Table of Strings
+const char* const string_table[] PROGMEM = {string_0, string_1};
+
 // =============================================================================================
 
 template <uint8_t rst_pin,
@@ -24,7 +31,7 @@ public:
     static void begin(uint8_t bootmode)
     {
         pinMode(rst_pin, OUTPUT);
-        digitalWrite(rst_pin, 1);
+        digitalWrite(rst_pin, 0); // keep board under reset
         pinMode(bootmode_control_pin, OUTPUT);
         set_bootmode(bootmode);
         pinMode(bootmode_selector_pin, INPUT);
@@ -40,6 +47,16 @@ public:
     {
         digitalWrite(rst_pin, 0);
         delay(5);
+        digitalWrite(rst_pin, 1);
+    }
+
+    static void pull_reset_down()
+    {
+        digitalWrite(rst_pin, 0);
+    }
+
+    static void pull_reset_up()
+    {
         digitalWrite(rst_pin, 1);
     }
 
@@ -78,7 +95,9 @@ public:
  * 07 reconfig wifi
  * 08 reset self
  */
+
 // =============================================================================================
+
 template <typename command_port>
 class CommandServer
 {
@@ -95,31 +114,37 @@ public:
         // https://randomnerdtutorials.com/esp8266-pinout-reference-gpios/
         // Also some pin need to be high to boot => need main FPGA power + usb to flash
         // used for boot select -> disabled
+        bootmode = 1;
+        command_port::begin(bootmode);
+        // Pull reset down upon starting incase both board serial & esp serial are output -> short 
+        command_port::pull_reset_down();
         // Enable serial logging for wifi
         SerialPort::begin();
         Serial.begin(SERIAL_BAUD);
+        wifiManager.setConfigPortalBlocking(true);
         wifiManager.setTimeout(180);
-        if(!wifiManager.autoConnect("ESP XVC-SERIAL BRIDGE")) {
-            Serial.println("Wifi failed to connect and hit timeout!");
+        wifiManager.setHostname(PSTR("esp8266xvc.lan"));
+        if(!wifiManager.autoConnect(PSTR("ESP8266 XVC-SERIAL BRIDGE"))) {
+            Serial.println(PSTR("Wifi failed to connect, restarting..."));
             delay(500);
-            ESP.reset();
+            ESP.restart();
         }
-        Serial.println("[LOG] STARTING COMMAND SERVER...");
-        Serial.println("[LOG] PORT LIST:");
-        Serial.print("[LOG] COMMAND: ");
+        Serial.println(PSTR("STARTING COMMAND SERVER..."));
+        Serial.println(PSTR("PORT LIST:"));
+        Serial.print(PSTR("\tCOMMAND: "));
         Serial.println((port != 0) ? port : COMMAND_PORT);
-        Serial.print("[LOG] SERIAL: ");
+        Serial.print(PSTR("\tSERIAL: "));
         Serial.print(SERIAL_PORT);
-        Serial.println(" - DISABLED.");
-        Serial.print("[LOG] XVC: ");
+        Serial.println(PSTR(" - DISABLED."));
+        Serial.print(PSTR("\tXVC: "));
         Serial.print(XVC_PORT);
-        Serial.println(" - DISABLED.");
+        Serial.println(PSTR(" - DISABLED."));
         delay(500);
         Serial.end();
         SerialPort::stop();
-
-        bootmode = 1;
-        command_port::begin(bootmode);
+        command_port::pull_reset_up();
+        // Disable esp serial from this point, only bridge target serial port
+        // Do not enable if board serial outputing data
         
         server.begin();
         server.setNoDelay(true);
@@ -177,6 +202,7 @@ private:
         wifiManager.resetSettings();
         delay(1000);
         ESP.reset();
+        return 0;
     }
 
     uint32_t set_bootmode(uint8_t mode)
@@ -227,6 +253,7 @@ private:
     uint32_t get_serial_run_state()
     {
         return (uint32_t)serial_server.is_running();
+        return 0;
     }
 
     // ~ API handlers
@@ -315,7 +342,7 @@ SET_STATE_4:
                         ret_val = 0;
                         goto RESET_STATE_0;
                     case 3:
-                        goto RESET_STATE_0;
+                        goto SET_STATE_4;
                     case 4:
                         command_return_value = get_xvc_run_state();
                         ret_val = 0;

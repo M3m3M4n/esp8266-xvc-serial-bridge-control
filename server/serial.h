@@ -1,6 +1,7 @@
 #ifndef SERIAL_H
 #define SERIAL_H
 
+#include <Arduino.h>
 #include <ESP8266WiFi.h>
 
 #define SERIAL_TX_PIN 1
@@ -19,8 +20,8 @@ public:
  
     static void begin()
     {
-        pinMode(1, FUNCTION_0);
-        pinMode(3, FUNCTION_0);
+        pinMode(SERIAL_TX_PIN, FUNCTION_0);
+        pinMode(SERIAL_RX_PIN, FUNCTION_0);
     }
 
     static void stop()
@@ -29,7 +30,8 @@ public:
         pinMode(SERIAL_TX_PIN, FUNCTION_3);
         //GPIO 3 (RX) swap the pin to a GPIO.
         pinMode(SERIAL_RX_PIN, FUNCTION_3);
-        pinMode(SERIAL_TX_PIN, INPUT);
+        // Input for board serial 
+        pinMode(SERIAL_TX_PIN, OUTPUT);
         pinMode(SERIAL_RX_PIN, INPUT);
     }
 };
@@ -112,11 +114,10 @@ public:
     }
 
 private:
-
+    uint8_t running;
     WiFiServer server;
     WiFiClient client;
-    uint8_t running;
-
+    
     uint32_t counter;
     uint8_t buffer[SERIAL_BUFFER_SIZE];
 };
