@@ -129,6 +129,8 @@ public:
             delay(500);
             ESP.restart();
         }
+        WiFi.setAutoReconnect(true);
+        WiFi.persistent(true);
         Serial.println(PSTR("STARTING COMMAND SERVER..."));
         Serial.println(PSTR("PORT LIST:"));
         Serial.print(PSTR("\tCOMMAND: "));

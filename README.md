@@ -34,6 +34,7 @@
 
 ## Notes
 - Settings in arduino: 160Mhz, Vtable in heap || IRAM, V2 higher bandwidth
+- If using DHCP, set lease time to unlimited. Looks like esp does not like ip expiring
 - Working unreliably in busy network, need to investigate, use hotspot or isolated network for now
 
 
