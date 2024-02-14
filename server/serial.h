@@ -31,8 +31,8 @@ public:
         //GPIO 3 (RX) swap the pin to a GPIO.
         pinMode(SERIAL_RX_PIN, FUNCTION_3);
         // Input for board serial 
-        pinMode(SERIAL_TX_PIN, OUTPUT);
-        pinMode(SERIAL_RX_PIN, INPUT);
+        pinMode(SERIAL_TX_PIN, INPUT_PULLUP);
+        pinMode(SERIAL_RX_PIN, INPUT_PULLUP);
     }
 };
 
@@ -83,7 +83,7 @@ public:
                 client = server.available();
             }
             */
-            // Need mnore processing power than previous impl but responsive
+            // Need more processing power than previous impl but responsive
             if(!client.connected()) {
                 if (server.hasClient())
                     client = server.available();

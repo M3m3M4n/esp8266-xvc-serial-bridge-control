@@ -111,6 +111,8 @@ public:
 
     void setup()
     {
+        // https://www.esp8266.com/viewtopic.php?p=83075
+        wifi_set_sleep_type(NONE_SLEEP_T);
         // https://randomnerdtutorials.com/esp8266-pinout-reference-gpios/
         // Also some pin need to be high to boot => need main FPGA power + usb to flash
         // used for boot select -> disabled
